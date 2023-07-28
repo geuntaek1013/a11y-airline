@@ -2,15 +2,20 @@ import React, { useState, MouseEvent } from "react";
 import "./SpinButton.css";
 
 const SpinButton: React.FC = () => {
-  const [count, setCount] = useState<number>(0);
+  const [count, setCount] = useState<number>(1);
   const [isTooltipVisible, setIsTooltipVisible] = useState<boolean>(false);
+  const [announcement, setAnnouncement] = useState<string>("");
 
   const increment = () => {
-    setCount((prevCount) => prevCount + 1);
+    const newCount = Math.min(count + 1, 3);
+    setCount(newCount);
+    setAnnouncement(`성인 승객 추가 ${newCount}`);
   };
 
   const decrement = () => {
-    setCount((prevCount) => prevCount - 1);
+    const newCount = Math.max(count - 1, 1);
+    setCount(newCount);
+    setAnnouncement(`성인 승객 감소 ${newCount}`);
   };
 
   const toggleTooltip = (event: MouseEvent<HTMLDivElement>) => {
@@ -19,34 +24,56 @@ const SpinButton: React.FC = () => {
 
   return (
     <section className="spinButtonContainer">
-      <div>
-        <h1>승객 선택</h1>
+      <fieldset>
+        <legend>승객 선택</legend>
         <div className="spinButtonLabel">
-          <label>성인</label>
+          <label htmlFor="passengerCount">성인</label>
           <div
             className="helpIcon"
             onMouseEnter={toggleTooltip}
             onMouseLeave={toggleTooltip}
+            aria-label="tooltip"
           >
             ?
             {isTooltipVisible && (
-              <span className="tooltip">최대 인원수는 3명까지 가능합니다</span>
+              <span id="tooltip" className="tooltip">
+                최대 인원수는 3명까지 가능합니다
+              </span>
             )}
           </div>
         </div>
-        <button onClick={decrement} className="spinButton">
+        <button
+          onClick={decrement}
+          className="spinButton"
+          aria-label="성인 탑승자 한명 줄이기"
+        >
           -
         </button>
         <input
           type="text"
           role="spinbutton"
+          aria-label="성인 탑승자 숫자 수정"
           readOnly
           className="spinButtonInput"
           value={count}
+          id="passengerCount"
+          aria-valuemin={1}
+          aria-valuemax={3}
+          aria-valuenow={count}
+          aria-live="polite"
+          aria-atomic="true"
+          aria-relevant="text"
         />
-        <button onClick={increment} className="spinButton">
+        <button
+          onClick={increment}
+          className="spinButton"
+          aria-label="성인 탑승자 한명 늘리기"
+        >
           +
         </button>
+      </fieldset>
+      <div className="hidden" aria-live="assertive">
+        {announcement}
       </div>
     </section>
   );
